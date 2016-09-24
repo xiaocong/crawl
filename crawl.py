@@ -88,6 +88,8 @@ def get_stations(genre, path):
         stations = re.findall(STATION_RE, page, flags=re.DOTALL)
         for s in stations:
             yield gen_station(*s)
+        if len(stations) == 0:
+            break
 
 
 if __name__ == "__main__":
