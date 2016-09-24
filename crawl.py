@@ -21,17 +21,21 @@ ROOT_URL = "https://www.internet-radio.com"
 GENRES_PATH = "/stations/"
 
 # GENRE_RE = (r"<a\s+onClick=\"ga\(.*?'genreclick'.*?\);\".+?href=\"(.+?)\">(.+?)</a>")
-GENRE_RE = (r"<dl>.*?"
+GENRE_RE = (
+    r"<dl>.*?"
     "<a\s+href=\"(/stations/.*?/)\">(.*?)</a>"
-    ".*?<dd>(.*?)</dd>.*?</dl>")
+    ".*?<dd>(.*?)</dd>.*?</dl>"
+)
 
-STATION_RE = (r"<tr>.*?"
+STATION_RE = (
+    r"<tr>.*?"
     "<a.*?onClick=\"ga\(.*?'play(?:m3u|pls)',\s*'(.*?)'\);\".*?>\.(m3u|pls)</a>"
     ".*?"
     "<a.*?onClick=\"ga\(.*?'play(?:m3u|pls)',\s*'(.*?)'\);\".*?>\.(m3u|pls)</a>"
     ".*?<td>.*?<h4.*?>(.*?)</h4>"
     ".*?<b>(.*?)</b>"
-    ".*?</tr>")
+    ".*?</tr>"
+)
 TAG_RE = r"<.*?>"
 
 
