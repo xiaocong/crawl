@@ -17,16 +17,16 @@ class StreemaSpider(scrapy.Spider):
 
     ids = set()
 
-    # start_urls = [
-    #     '%s/radios' % root,
-    # ]
     start_urls = [
-        '%s/radios/country/Japan' % root,
+        '%s/radios' % root,
     ]
+    # start_urls = [
+    #     '%s/radios/country/Japan' % root,
+    # ]
 
     def parse(self, response):
-        # return self.parse_index(response)
-        return self.parse_region(response)
+        return self.parse_index(response)
+        # return self.parse_region(response)
 
     def parse_index(self, response):
         regions = response.css('div.geo-list > ul')[0]
