@@ -4,11 +4,26 @@ from datetime import datetime
 import scrapy
 import requests
 import json
+import time
 
 from ..models import station as def_station
 
 streema_collection = 'streema'
 Station = def_station(streema_collection)
+
+
+def fetch_nowplaying_info(url):
+    retries = 3
+    while retries > 0:
+        retries -= 1
+        try:
+            itunes_info = requests.get(url).json()
+            if itunes_info.get('status') in ['ok', 'unavailable']:
+                return itunes_info
+        except:
+            pass
+        time.sleep(3)
+    return {}
 
 
 class StreemaSpider(scrapy.Spider):
@@ -22,16 +37,16 @@ class StreemaSpider(scrapy.Spider):
     ]
     # start_urls = [
     #     '%s/radios/country/Japan' % root,
+    #     '%s/radios/country/United_States' % root,
     # ]
 
     def parse(self, response):
         return self.parse_index(response)
-        # return self.parse_region(response)
 
     def parse_index(self, response):
         regions = response.css('div.geo-list > ul')[0]
         for region in regions.css('li'):
-            # name = region.css('a ::text').extract_first().strip()
+            # name = region.css('a::text').extract_first().strip()
             yield scrapy.Request(
                 response.urljoin(region.css('a ::attr(href)').extract_first()),
                 callback=self.parse_region
@@ -44,18 +59,17 @@ class StreemaSpider(scrapy.Spider):
                 response.urljoin(region.css('a ::attr(href)').extract_first().strip()),
                 callback=self.parse_region
             )
-        for station in self.parse_station(response):
-            yield station
+        if len(regions) == 0:
+            for station in self.parse_station(response):
+                yield station
 
     def parse_station(self, response):
+        print('---- scrawl radio stations on %s' % response.url)
         stations = response.css('div.results div.items-list > div.item')
         for station in stations:
             def extrace_field(field):
                 sel = station.css(field)
-                if len(sel) > 0:
-                    return sel.extract_first().strip()
-                else:
-                    return ""
+                return sel.extract_first().strip() if len(sel) > 0 else ""
 
             try:
                 media_id = extrace_field('div.item-name div::attr(data-radio-id)')
@@ -85,14 +99,12 @@ class StreemaSpider(scrapy.Spider):
                         'referers__referer': response.url,
                     }
 
-                    try:
-                        itunes_info = requests.get(info_url).json()
+                    itunes_info = fetch_nowplaying_info(info_url)
+                    if itunes_info:
                         station_dict['extra__itunes_info'] = itunes_info
                         stream = itunes_info.get('source', {}).get('stream', None)
                         if stream:
                             station_dict['streams'] = [stream]
-                    except:
-                        pass
 
                     if len(locations) > 0:
                         station_dict['country'] = locations[-1]
