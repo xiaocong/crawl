@@ -99,12 +99,12 @@ class StreemaSpider(scrapy.Spider):
                         'referers__referer': response.url,
                     }
 
-                    itunes_info = fetch_nowplaying_info(info_url)
-                    if itunes_info:
-                        station_dict['extra__itunes_info'] = itunes_info
-                        stream = itunes_info.get('source', {}).get('stream', None)
-                        if stream:
-                            station_dict['streams'] = [stream]
+                    # itunes_info = fetch_nowplaying_info(info_url)
+                    # if itunes_info:
+                    #     station_dict['extra__itunes_info'] = itunes_info
+                    #     stream = itunes_info.get('source', {}).get('stream', None)
+                    #     if stream:
+                    #         station_dict['streams'] = [stream]
 
                     if len(locations) > 0:
                         station_dict['country'] = locations[-1]
