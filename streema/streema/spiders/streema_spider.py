@@ -32,16 +32,22 @@ class StreemaSpider(scrapy.Spider):
 
     ids = set()
 
-    start_urls = [
-        '%s/radios' % root,
-    ]
     # start_urls = [
-    #     '%s/radios/country/Japan' % root,
-    #     '%s/radios/country/United_States' % root,
+    #     '%s/radios' % root,
     # ]
+    start_urls = [
+        '%s/radios/region/Asia' % root,
+        '%s/radios/region/North_America' % root,
+        '%s/radios/region/Europe' % root,
+        '%s/radios/region/Oceania' % root,
+        '%s/radios/region/South_America' % root,
+        '%s/radios/region/Central_America' % root,
+        '%s/radios/region/Africa' % root,
+    ]
 
     def parse(self, response):
-        return self.parse_index(response)
+        # return self.parse_index(response)
+        return self.parse_region(response)
 
     def parse_index(self, response):
         regions = response.css('div.geo-list > ul')[0]
@@ -59,9 +65,9 @@ class StreemaSpider(scrapy.Spider):
                 response.urljoin(region.css('a ::attr(href)').extract_first().strip()),
                 callback=self.parse_region
             )
-        if len(regions) == 0:
-            for station in self.parse_station(response):
-                yield station
+        # if len(regions) == 0:
+        for station in self.parse_station(response):
+            yield station
 
     def parse_station(self, response):
         print('---- scrawl radio stations on %s' % response.url)
@@ -124,6 +130,15 @@ class StreemaSpider(scrapy.Spider):
                         response.urljoin(data_url),
                         callback=self.parse_station_play
                     )
+
+                    st = Station.objects(media_id=media_id).get()
+                    yield {
+                        'media_id': st.media_id,
+                        'title': st.title,
+                        'country': st.description,
+                        'city': st.city,
+                        'genres': st.genres,
+                    }
             except Exception, e:
                 print(e)
 
@@ -171,15 +186,6 @@ class StreemaSpider(scrapy.Spider):
                 station.language = language
 
             station.save()
-
-            yield {
-                'media_id': media_id,
-                'website': website,
-                'country': country,
-                'city': city,
-                'language': language,
-                'description': description
-            }
         except Exception, e:
             print(e)
 
@@ -210,11 +216,5 @@ class StreemaSpider(scrapy.Spider):
                 station.cover_full = cover_full
 
             station.save()
-
-            yield {
-                'media_id': media_id,
-                'streams': play_info.get('streams'),
-                'cover_full': cover_full
-            }
         except Exception, e:
             print(e)
