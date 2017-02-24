@@ -136,7 +136,7 @@ class StreemaSpider(scrapy.Spider):
                     yield {
                         'media_id': st.media_id,
                         'title': st.title,
-                        'country': st.description,
+                        'country': st.country,
                         'city': st.city,
                         'genres': st.genres,
                     }
