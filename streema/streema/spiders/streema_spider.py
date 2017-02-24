@@ -88,7 +88,8 @@ class StreemaSpider(scrapy.Spider):
                 locations = map(lambda loc: loc.extract().strip(), station.css('div.item-extra div.item-info > p.location > span::text'))
                 rating = extrace_field('div.item-extra div.item-rating > p::text')
 
-                if media_id not in StreemaSpider.ids and Station.objects(media_id=media_id, streams__exists=True, extra__play_info__exists=True).count() == 0:
+                if media_id not in StreemaSpider.ids and Station.objects(media_id=media_id, streams__exists=True).count() == 0 and \
+                        Station.objects(media_id=media_id, extra__play_info__exists=True).count() == 0:
                     StreemaSpider.ids.update([media_id])
                     info_url = "http://nowrelinch.streema.com/nowplaying/%s" % media_id
                     station_dict = {
